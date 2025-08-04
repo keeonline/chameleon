@@ -5,3 +5,4 @@ Scenario: Successful call to health check endpoint
     And path 'chameleon/actuator/health'
     When method GET
     Then status 200
+    * match response.status == 'UP'
