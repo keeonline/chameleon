@@ -46,4 +46,16 @@ jobs:
               env:
                 GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-            
+            - name: Build image
+              run: |
+                docker build --build-arg VERSION=${{steps.versions.outputs.release}} \
+                             -t chameleon:${{steps.versions.outputs.release}} \
+                             .
+
+            - name: List image
+              run: |
+                docker image ls chameleon:${{steps.versions.outputs.release}}
+
+            - name: Inspect image
+              run: |
+                docker inspect --type=image chameleon:${{steps.versions.outputs.release}}            

@@ -38,4 +38,17 @@ jobs:
                 name: Build Reports
                 path: build/reports
 
+            - name: Build image
+              run: |
+                docker build --build-arg VERSION=${{steps.versions.outputs.branch}} \
+                             -t chameleon:${{steps.versions.outputs.branch}} \
+                             .
+
+            - name: List image
+              run: |
+                docker image ls chameleon:${{steps.versions.outputs.branch}}
+
+            - name: Inspect image
+              run: |
+                docker inspect --type=image chameleon:${{steps.versions.outputs.branch}}
             
