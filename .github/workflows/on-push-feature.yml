@@ -18,8 +18,6 @@ jobs:
             - name: Build the application
               uses: keeonline/gh-actions/actions/java-build@feature-refactor
               with:
-                java_distribution: 'temurin'
-                java_version: 21
                 artifact_version: ${{steps.versions.outputs.branch}}
 
             - name: Build image
