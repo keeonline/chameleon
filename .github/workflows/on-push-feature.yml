@@ -16,7 +16,7 @@ jobs:
               uses: keeonline/gh-actions/actions/artifact-version@v0.0.2
 
             - name: Build the application
-              uses: actions/java-build@feature-refactor
+              uses: keeonline/gh-actions/actions/java-build@feature-refactor
               with:
                 java_distribution: 'temurin'
                 java_version: 21
