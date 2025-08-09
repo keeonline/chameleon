@@ -47,7 +47,7 @@ jobs:
 
             - name: Stop the chameleon service
               if: always()
-              working-directory: servicetest
+              working-directory: servicetest/karate
               run: |
                 docker-compose down
 
