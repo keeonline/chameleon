@@ -13,7 +13,7 @@ jobs:
         steps:
             - name: Get the artifact version
               id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.2
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.3
 
             - name: Build the application
               uses: keeonline/gh-actions/actions/java-build@v0.0.3
