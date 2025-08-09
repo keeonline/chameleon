@@ -20,7 +20,7 @@ jobs:
               with:
                 artifact_version: ${{steps.versions.outputs.branch}}
 
-            - name: Package application as an image
+            - name: Package the application as an image
               uses: keeonline/gh-actions/actions/docker-build@feature-refactor
               with:
                 image: chameleon
@@ -31,13 +31,13 @@ jobs:
               with:
                 version: 2.39.1
 
-            - name: Create envvar for docker-compose
+            - name: Set environment variables for service startup
               working-directory: servicetest/karate
               run: |
                 echo "VERSION=${{steps.versions.outputs.branch}}" >> .env
                 cat .env
 
-            - name: Start the chameleon container
+            - name: Start the chameleon service
               working-directory: servicetest/karate
               run: |
                 docker-compose up -d
@@ -58,7 +58,7 @@ jobs:
                 name: Service Test Reports
                 path: servicetest/karate/target/karate-reports
 
-            - name: Stop chameleon service
+            - name: Stop the chameleon service
               if: always()
               working-directory: servicetest
               run: |
@@ -70,15 +70,11 @@ jobs:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
 
-            - name: Tag image
-              run: |
-                docker tag chameleon:${{steps.versions.outputs.branch}} \
-                           ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.branch}}
 
-            - name: List chameleon images
-              run: |
-                docker images | grep chameleon
-
-            - name: Publish image
-              run : |
-                docker push ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.branch}}
+            - name: Publish the image
+              uses: keeonline/gh-actions/actions/setup-docker-compose@feature-refactor
+              with:
+                username: ${{vars.DOCKERHUB_USERNAME}}
+                password: ${{secrets.DOCKERHUB_TOKEN}}
+                source_image: chameleon:${{steps.versions.outputs.branch}}
+                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.branch}}
