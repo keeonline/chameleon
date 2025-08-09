@@ -16,18 +16,18 @@ jobs:
               uses: keeonline/gh-actions/actions/artifact-version@v0.0.2
 
             - name: Build the application
-              uses: keeonline/gh-actions/actions/java-build@feature-refactor
+              uses: keeonline/gh-actions/actions/java-build@v0.0.3
               with:
                 artifact_version: ${{steps.versions.outputs.branch}}
 
             - name: Package the application as an image
-              uses: keeonline/gh-actions/actions/docker-build@feature-refactor
+              uses: keeonline/gh-actions/actions/docker-build@v0.0.3
               with:
                 image: chameleon
                 artifact_version: ${{steps.versions.outputs.branch}}
             
             - name: Setup docker compose
-              uses: keeonline/gh-actions/actions/setup-docker-compose@feature-refactor
+              uses: keeonline/gh-actions/actions/setup-docker-compose@v0.0.3
               with:
                 version: 2.39.1
 
@@ -40,7 +40,7 @@ jobs:
                 sleep 5
 
             - name: Execute the service tests
-              uses: keeonline/gh-actions/actions/karate-tests@feature-refactor
+              uses: keeonline/gh-actions/actions/karate-tests@v0.0.3
               with:
                 tests_directory: servicetest/karate
                 reports_upload_title: Service Test Reports
@@ -52,7 +52,7 @@ jobs:
                 docker-compose down
 
             - name: Publish the image
-              uses: keeonline/gh-actions/actions/dockerhub-publish@feature-refactor
+              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.3
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
