@@ -39,20 +39,11 @@ jobs:
                 docker-compose up -d
                 sleep 5
 
-            - name: Setup karate
-              run: |
-                wget -O /opt/karate.jar https://github.com/karatelabs/karate/releases/download/v1.5.1/karate-1.5.1.jar
-
-            - name: Execute karate tests
-              working-directory: servicetest/karate
-              run: |
-                java -jar /opt/karate.jar .
-
-            - name: Upload service test reports
-              uses: actions/upload-artifact@v4
+            - name: Execute the service tests
+              uses: keeonline/gh-actions/actions/karate-tests@feature-refactor
               with:
-                name: Service Test Reports
-                path: servicetest/karate/target/karate-reports
+                tests_directory: servicetest/karate
+                reports_upload_title: Service Test Reports
 
             - name: Stop the chameleon service
               if: always()
