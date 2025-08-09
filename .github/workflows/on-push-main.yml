@@ -12,69 +12,32 @@ jobs:
         permissions:
           contents: write
         steps:
-            - name: Setup Java
-              uses: actions/setup-java@v4
-              with:
-                distribution: 'temurin'
-                java-version: 21
-
-            - name: Setup Gradle
-              uses: gradle/actions/setup-gradle@v4
-
             - name: Get the artifact version
               id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.2
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.3
 
-            - name: Build application with Gradle
-              run: |
-                ./gradlew -Pversion=${{steps.versions.outputs.release}} build --no-daemon
-
-            - name: Show builds outputs
-              run: |
-                ls -lsa build/libs
-
-            - name: Upload build reports
-              uses: actions/upload-artifact@v4
+            - name: Build the application
+              uses: keeonline/gh-actions/actions/java-build@v0.0.3
               with:
-                name: Build Reports
-                path: build/reports
+                artifact_version: ${{steps.versions.outputs.release}}
 
-            - name: Tag repo
+            - name: Package the application as an image
+              uses: keeonline/gh-actions/actions/docker-build@v0.0.3
+              with:
+                image: chameleon
+                artifact_version: ${{steps.versions.outputs.release}}
+
+            - name: Tag repository with the release version
               uses: richardsimko/update-tag@v1.1.6
               with:
                 tag_name: ${{steps.versions.outputs.release}}
               env:
                 GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-            - name: Build image
-              run: |
-                docker build --build-arg VERSION=${{steps.versions.outputs.release}} \
-                             -t chameleon:${{steps.versions.outputs.release}} \
-                             .
-
-            - name: List image
-              run: |
-                docker image ls chameleon:${{steps.versions.outputs.release}}
-
-            - name: Inspect image
-              run: |
-                docker inspect --type=image chameleon:${{steps.versions.outputs.release}}     
-                
-            - name: Login to Docker registry
-              uses: docker/login-action@v3
+            - name: Publish the image
+              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.3
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
-
-            - name: Tag image
-              run: |
-                docker tag chameleon:${{steps.versions.outputs.release}} \
-                           ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.release}}
-
-            - name: List chameleon images
-              run: |
-                docker images | grep chameleon
-
-            - name: Publish image
-              run : |
-                docker push ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.release}}
+                source_image: chameleon:${{steps.versions.outputs.release}}
+                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.release}}
