@@ -8,7 +8,7 @@ Scenario: Successful call to greetings endpoint
     * match response.serviceName == 'chameleon'
     * match response.message == 'This is the chameleon service!'
 
-Scenario: Not found call to greetings endpoint
+Scenario: Not found call to chameleon service
     Given url 'http://localhost:8080'
     And path 'chameleon/v1/like'
     When method GET
