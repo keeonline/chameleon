@@ -20,19 +20,11 @@ jobs:
               with:
                 artifact_version: ${{steps.versions.outputs.branch}}
 
-            - name: Build image
-              run: |
-                docker build --build-arg VERSION=${{steps.versions.outputs.branch}} \
-                             -t chameleon:${{steps.versions.outputs.branch}} \
-                             .
-
-            - name: List image
-              run: |
-                docker image ls chameleon:${{steps.versions.outputs.branch}}
-
-            - name: Inspect image
-              run: |
-                docker inspect --type=image chameleon:${{steps.versions.outputs.branch}}
+            - name: Package application as an image
+              uses: keeonline/gh-actions/actions/docker-build@feature-refactor
+              with:
+                image: chameleon
+                artifact_version: ${{steps.versions.outputs.branch}}
             
             - name: Setup docker compose
               run: |
