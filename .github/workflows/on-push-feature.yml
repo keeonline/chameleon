@@ -65,7 +65,7 @@ jobs:
                 docker-compose down
 
             - name: Publish the image
-              uses: keeonline/gh-actions/actions/setup-docker-compose@feature-refactor
+              uses: keeonline/gh-actions/actions/dockerhub-publish@feature-refactor
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
