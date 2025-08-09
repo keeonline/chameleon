@@ -31,15 +31,11 @@ jobs:
               with:
                 version: 2.39.1
 
-            - name: Set environment variables for service startup
+            - name: Start the chameleon service
               working-directory: servicetest/karate
               run: |
                 echo "VERSION=${{steps.versions.outputs.branch}}" >> .env
                 cat .env
-
-            - name: Start the chameleon service
-              working-directory: servicetest/karate
-              run: |
                 docker-compose up -d
                 sleep 5
 
