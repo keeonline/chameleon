@@ -1,0 +1,13 @@
+name: Manage deployment
+
+on:
+    workflow_dispatch:
+
+jobs:
+    manage-deployment:
+      name: Manage Deployment
+      runs-on: ubuntu-24.04
+      steps:
+        - name: Placeholder
+          run: |
+            echo "placeholder"
