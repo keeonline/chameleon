@@ -20,5 +20,5 @@ variable "base_alb_listener_rule_priority" {
 
 
 variable "az_use_count" {
-    type = 2
+    type = number
 }
