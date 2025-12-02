@@ -13,3 +13,12 @@ variable "app_repo" {
 variable "infra_environment" {
     type = string
 }
+
+variable "base_alb_listener_rule_priority" {
+    type = number
+}
+
+
+variable "az_use_count" {
+    type = number
+}
