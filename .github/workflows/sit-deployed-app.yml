@@ -1,0 +1,13 @@
+name: Run the SIT against a deployed application
+
+on:
+    workflow_dispatch:
+
+jobs:
+    execute-sit:
+        name: Execute the SITs against deployed application
+        runs-on: ubuntu-24.04
+        steps:
+          - name: Placeholder
+            run: |
+              echo "placeholder"
