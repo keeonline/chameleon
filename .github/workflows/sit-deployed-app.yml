@@ -42,7 +42,7 @@ jobs:
                 sparse-checkout: sit/karate
 
             - name: Execute the SITs
-              uses: keeonline/gh-actions/actions/karate-tests@feature-baseurl
+              uses: keeonline/gh-actions/actions/karate-tests@v0.0.5
               with:
                 tests_directory: sit/karate
                 reports_upload_title: System Integration Test Reports

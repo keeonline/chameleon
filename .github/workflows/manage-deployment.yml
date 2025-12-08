@@ -27,7 +27,7 @@ jobs:
       steps:
             - name: Get the artefact version values
               id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.4
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.5
 
             - name: Set the application version
               id: app_version
@@ -41,7 +41,7 @@ jobs:
                 fi
 
             - name: Terraform action
-              uses: keeonline/gh-actions/actions/terraform-cmd@v0.0.4
+              uses: keeonline/gh-actions/actions/terraform-cmd@v0.0.5
               env:
                 TF_VAR_app_environment: ${{inputs.environment}}
                 TF_VAR_app_version: ${{steps.app_version.outputs.value}}
