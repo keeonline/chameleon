@@ -20,3 +20,30 @@ jobs:
             - name: Show inputs
               run: |
                   echo "environment=${{inputs.environment}}"
+
+            - name: Configure credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/IaC
+                aws-region: ${{secrets.AWS_REGION}}
+
+            - name: Get the application load balancer DNS name
+              id: alb_dns
+              run: |
+                ALB=$(aws elbv2 describe-load-balancers \
+                  --names ${{vars.INFRA_ENVIRONMENT}}-alb \
+                  --query 'LoadBalancers[*].[DNSName]' \
+                  --output text)
+                echo "value=$ALB" >> $GITHUB_OUTPUTS
+                
+            - name: Checkout SIT karate scripts
+              uses: actions/checkout@v4
+              with:
+                sparse-checkout: sit/karate
+
+            - name: Execute the SITs
+              uses: keeonline/gh-actions/actions/karate-tests@feature-baseurl
+              with:
+                tests_directory: sit/karate
+                reports_upload_title: System Integration Test Reports
+                baseurl: http://${{steps.alb_dns.outputs.value}}/${{inputs.environment}}
