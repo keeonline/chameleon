@@ -34,7 +34,7 @@ jobs:
                   --names ${{vars.INFRA_ENVIRONMENT}}-alb \
                   --query 'LoadBalancers[*].[DNSName]' \
                   --output text)
-                echo "value=$ALB" >> $GITHUB_OUTPUTS
+                echo "value=$ALB" >> $GITHUB_OUTPUT
                 
             - name: Checkout SIT karate scripts
               uses: actions/checkout@v4
