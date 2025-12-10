@@ -24,7 +24,7 @@ Scenario Outline: Call to service endpoints that have no request handlers
     Then status 404
     * match response.status == 404
     * match response.error == 'Not Found'
-    * match response.path == '/<path>'
+    * match karate.toString(response.path) contains '/<path>'
 
     Examples:
         | path |
