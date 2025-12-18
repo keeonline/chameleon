@@ -11,7 +11,7 @@ on:
 jobs:
     execute-sit:
       name: Run the SITs against a deployed application
-      uses: ./.github/workflows/resuable-sit-execution.yml
+      uses: ./.github/workflows/reusable-sit-execution.yml
       permissions:
         id-token: write
       secrets:
