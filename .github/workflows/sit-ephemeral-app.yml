@@ -22,6 +22,7 @@ jobs:
 
     execute-sit:
       name: Run the SITs against a deployed application
+      needs: [ deploy-app ]
       uses: ./.github/workflows/reusable-sit-execution.yml
       permissions:
         id-token: write
@@ -32,6 +33,8 @@ jobs:
 
     undeploy-app:
       name: Undeploy the application
+      needs: [ execute-sit ]
+      if: always()
       uses: ./.github/workflows/reusable-manage-deployment.yml
       permissions:
         id-token: write
