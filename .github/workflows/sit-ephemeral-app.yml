@@ -1,0 +1,20 @@
+name: Run the SITs against an ephemeral application
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                type: environment
+                required: false
+                default: test
+
+jobs:
+    execute-sit:
+      name: Run the SITs against a deployed application Placeholder
+      runs-on: ubuntu-24.04
+      environment: ${{inputs.environment}}
+      steps:
+
+            - name: Show inputs
+              run: |
+                  echo "environment=${{inputs.environment}}"
