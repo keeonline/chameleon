@@ -9,12 +9,37 @@ on:
                 default: test
 
 jobs:
-    execute-sit:
-      name: Run the SITs against a deployed application Placeholder
-      runs-on: ubuntu-24.04
-      environment: ${{inputs.environment}}
-      steps:
+    deploy-app:
+      name: Deploy the application
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: apply
+        environment: ${{inputs.environment}}
 
-            - name: Show inputs
-              run: |
-                  echo "environment=${{inputs.environment}}"
+    execute-sit:
+      name: Run the SITs against a deployed application
+      needs: [ deploy-app ]
+      uses: ./.github/workflows/reusable-sit-execution.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        environment: ${{inputs.environment}}
+
+    undeploy-app:
+      name: Undeploy the application
+      needs: [ execute-sit ]
+      if: always()
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: destroy
+        environment: ${{inputs.environment}}
