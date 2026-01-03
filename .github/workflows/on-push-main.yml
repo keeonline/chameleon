@@ -14,15 +14,15 @@ jobs:
         steps:
             - name: Get the artifact version
               id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.5
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.6
 
             - name: Build the application
-              uses: keeonline/gh-actions/actions/java-build@v0.0.5
+              uses: keeonline/gh-actions/actions/java-build@v0.0.6
               with:
                 artifact_version: ${{steps.versions.outputs.release}}
 
             - name: Package the application as an image
-              uses: keeonline/gh-actions/actions/docker-build@v0.0.5
+              uses: keeonline/gh-actions/actions/docker-build@v0.0.6
               with:
                 image: chameleon
                 artifact_version: ${{steps.versions.outputs.release}}
@@ -35,7 +35,7 @@ jobs:
                 GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
             - name: Publish the image
-              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.5
+              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.6
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
