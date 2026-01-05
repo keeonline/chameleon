@@ -20,6 +20,10 @@ on:
                 type: string
                 required: false
                 default: '100'
+            github_ref:
+                type: string
+                required: false
+                default: ${{ github.ref }}
 
 jobs:
     reusable-manage-deployment:
@@ -39,7 +43,9 @@ jobs:
 
             - name: Get the artefact version values
               id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.6
+              uses: keeonline/gh-actions/actions/artifact-version@feature-pr-sit
+              with:
+                github_ref: ${{ inputs.github_ref }}
 
             - name: Set the application version
               id: app_version
