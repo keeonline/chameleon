@@ -32,69 +32,67 @@ jobs:
         secrets:
             inherit
         with:
-          # action: apply
-          action: apply-plan
+          action: apply
           environment: ${{ needs.sit-config.outputs.infra_environment }}
           vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
           checkout_repo: true
           repo_name: ${{ needs.sit-config.outputs.repo_name }}
           repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
 
-    # deploy-app:
-    #   name: Deploy
-    #   needs: [ sit-config, provision-infra ]
-    #   uses: ./.github/workflows/reusable-manage-deployment.yml
-    #   permissions:
-    #     id-token: write
-    #   secrets:
-    #     inherit
-    #   with:
-    #     action: apply
-    #     app_environment: ${{ needs.sit-config.outputs.app_environment }}
-    #     infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
-    #     github_ref: ${{ github.head_ref }}
+    deploy-app:
+      name: Deploy
+      needs: [ sit-config, provision-infra ]
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: apply
+        app_environment: ${{ needs.sit-config.outputs.app_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
+        github_ref: ${{ github.head_ref }}
 
-    # execute-sit:
-    #   name: Run the SITs against a deployed application
-    #   needs: [ sit-config, deploy-app ]
-    #   uses: ./.github/workflows/reusable-sit-execution.yml
-    #   permissions:
-    #     id-token: write
-    #   secrets:
-    #     inherit
-    #   with:
-    #     app_environment: ${{ needs.sit-config.outputs.app_environment }}
-    #     infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
+    execute-sit:
+      name: Run the SITs against a deployed application
+      needs: [ sit-config, deploy-app ]
+      uses: ./.github/workflows/reusable-sit-execution.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        app_environment: ${{ needs.sit-config.outputs.app_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
 
-    # undeploy-app:
-    #   name: Undeploy
-    #   needs: [ sit-config, execute-sit ]
-    #   if: always()
-    #   uses: ./.github/workflows/reusable-manage-deployment.yml
-    #   permissions:
-    #     id-token: write
-    #   secrets:
-    #     inherit
-    #   with:
-    #     action: destroy
-    #     app_environment:  ${{ needs.sit-config.outputs.app_environment }}
-    #     infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
-    #     github_ref: ${{ github.head_ref }}
+    undeploy-app:
+      name: Undeploy
+      needs: [ sit-config, execute-sit ]
+      if: always()
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: destroy
+        app_environment:  ${{ needs.sit-config.outputs.app_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
+        github_ref: ${{ github.head_ref }}
 
-    # destroy-infra:
-    #     name: Destroy
-    #     needs: [ sit-config, undeploy-app ]
-    #     if: always()
-    #     uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@bob
-    #     permissions:
-    #         id-token: write
-    #     secrets:
-    #         inherit
-    #     with:
-    #       action: destroy
-    #       environment: ${{ needs.sit-config.outputs.infra_environment }}
-    #       vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
-    #       checkout_repo: true
-    #       repo_name: ${{ needs.sit-config.outputs.repo_name }}
-    #       repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
-
+    destroy-infra:
+        name: Destroy
+        needs: [ sit-config, undeploy-app ]
+        if: always()
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@bob
+        permissions:
+            id-token: write
+        secrets:
+            inherit
+        with:
+          action: destroy
+          environment: ${{ needs.sit-config.outputs.infra_environment }}
+          vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
+          checkout_repo: true
+          repo_name: ${{ needs.sit-config.outputs.repo_name }}
+          repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
