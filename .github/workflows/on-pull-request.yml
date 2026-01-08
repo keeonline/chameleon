@@ -21,12 +21,12 @@ jobs:
               echo "this_environment=eph$THIS" >> $GITHUB_OUTPUT
               echo "vpc_cidr=10.$THIS.0.0/16" >> $GITHUB_OUTPUT
               echo "repo_name=keeonline/infra-aws" >> $GITHUB_OUTPUT
-              echo "repo_ref=v0.0.10" >> $GITHUB_OUTPUT
+              echo "repo_ref=bob" >> $GITHUB_OUTPUT
                
     provision-infra:
         name: Provision
         needs: [ sit-config ]
-        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.10
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@bob
         permissions:
             id-token: write
         secrets:
@@ -84,7 +84,7 @@ jobs:
         name: Destroy
         needs: [ sit-config, undeploy-app ]
         if: always()
-        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.10
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@bob
         permissions:
             id-token: write
         secrets:
