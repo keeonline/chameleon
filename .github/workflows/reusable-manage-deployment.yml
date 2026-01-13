@@ -6,6 +6,10 @@ on:
             action:
                 type: string
                 required: true
+            repo_ref:
+              type: string
+              required: false
+              default: ${{github.ref}}
             app_environment:
                 type: string
                 required: true
@@ -32,6 +36,7 @@ jobs:
               shell: bash
               run: |
                 echo "action=${{inputs.action}}"
+                echo "repo_ref=${{inputs.repo_ref}}"
                 echo "app_environment=${{inputs.app_environment}}"
                 echo "infra_environment=${{inputs.infra_environment}}"
                 echo "az_use_count=${{inputs.az_use_count}}"
@@ -40,6 +45,8 @@ jobs:
             - name: Get the artefact version values
               id: app_version
               uses: keeonline/gh-actions/actions/artifact-version@v0.0.8
+              with:
+                repo_ref: ${{inputs.repo_ref}}
 
             - name: Terraform action
               uses: keeonline/gh-actions/actions/terraform-cmd@v0.0.8

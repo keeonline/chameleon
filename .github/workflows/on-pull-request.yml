@@ -1,0 +1,95 @@
+name: Pull request
+
+on:
+  pull_request:
+
+jobs:
+    sit-config:
+        name: Get config
+        runs-on: ubuntu-24.04
+        outputs:
+            this_environment: ${{steps.values.outputs.this_environment}}
+            vpc_cidr: ${{steps.values.outputs.vpc_cidr}}
+            repo_name:  ${{steps.values.outputs.repo_name}}
+            repo_ref:  ${{steps.values.outputs.repo_ref}}
+        steps:
+          - name: Determine values
+            id: values
+            run: |
+              THIS=$(shuf -i 201-255 -n 1)
+              echo "this_environment=eph$THIS" >> $GITHUB_OUTPUT
+              echo "vpc_cidr=10.$THIS.0.0/16" >> $GITHUB_OUTPUT
+              echo "repo_name=keeonline/infra-aws" >> $GITHUB_OUTPUT
+              echo "repo_ref=v0.0.11" >> $GITHUB_OUTPUT
+               
+    provision-infra:
+        name: Provision
+        needs: [ sit-config ]
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.11
+        permissions:
+            id-token: write
+        secrets:
+            inherit
+        with:
+          action: apply
+          environment: ${{ needs.sit-config.outputs.this_environment }}
+          vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
+          repo_name: ${{ needs.sit-config.outputs.repo_name }}
+          repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
+
+    deploy-app:
+      name: Deploy
+      needs: [ sit-config, provision-infra ]
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: apply
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
+        repo_ref: ${{github.head_ref}}
+
+    execute-sit:
+      name: Run the SITs against a deployed application
+      needs: [ sit-config, deploy-app ]
+      uses: ./.github/workflows/reusable-sit-execution.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
+
+    undeploy-app:
+      name: Undeploy
+      needs: [ sit-config, execute-sit ]
+      if: always()
+      uses: ./.github/workflows/reusable-manage-deployment.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        action: destroy
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
+        repo_ref: ${{github.head_ref}}
+
+    destroy-infra:
+        name: Destroy
+        needs: [ sit-config, undeploy-app ]
+        if: always()
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.11
+        permissions:
+            id-token: write
+        secrets:
+            inherit
+        with:
+          action: destroy
+          environment: ${{ needs.sit-config.outputs.this_environment }}
+          vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
+          repo_name: ${{ needs.sit-config.outputs.repo_name }}
+          repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
