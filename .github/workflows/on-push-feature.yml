@@ -12,35 +12,35 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             - name: Get the artifact version
-              id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.6
+              id: version
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.8
 
             - name: Build the application
-              uses: keeonline/gh-actions/actions/java-build@v0.0.6
+              uses: keeonline/gh-actions/actions/java-build@v0.0.8
               with:
-                artifact_version: ${{steps.versions.outputs.branch}}
+                artifact_version: ${{steps.version.outputs.value}}
 
             - name: Package the application as an image
-              uses: keeonline/gh-actions/actions/docker-build@v0.0.6
+              uses: keeonline/gh-actions/actions/docker-build@v0.0.8
               with:
                 image: chameleon
-                artifact_version: ${{steps.versions.outputs.branch}}
+                artifact_version: ${{steps.version.outputs.value}}
             
             - name: Setup docker compose
-              uses: keeonline/gh-actions/actions/setup-docker-compose@v0.0.6
+              uses: keeonline/gh-actions/actions/setup-docker-compose@v0.0.8
               with:
                 version: 2.39.1
 
             - name: Start the chameleon service
               working-directory: servicetest/karate
               run: |
-                echo "VERSION=${{steps.versions.outputs.branch}}" >> .env
+                echo "VERSION=${{steps.version.outputs.value}}" >> .env
                 cat .env
                 docker-compose up -d
                 sleep 5
 
             - name: Execute the service tests
-              uses: keeonline/gh-actions/actions/karate-tests@v0.0.6
+              uses: keeonline/gh-actions/actions/karate-tests@v0.0.8
               with:
                 tests_directory: servicetest/karate
                 reports_upload_title: Service Test Reports
@@ -52,9 +52,9 @@ jobs:
                 docker-compose down
 
             - name: Publish the image
-              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.6
+              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.8
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
-                source_image: chameleon:${{steps.versions.outputs.branch}}
-                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.branch}}
+                source_image: chameleon:${{steps.version.outputs.value}}
+                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.version.outputs.value}}
