@@ -13,31 +13,31 @@ jobs:
           contents: write
         steps:
             - name: Get the artifact version
-              id: versions
-              uses: keeonline/gh-actions/actions/artifact-version@v0.0.6
+              id: version
+              uses: keeonline/gh-actions/actions/artifact-version@v0.0.8
 
             - name: Build the application
-              uses: keeonline/gh-actions/actions/java-build@v0.0.6
+              uses: keeonline/gh-actions/actions/java-build@v0.0.8
               with:
-                artifact_version: ${{steps.versions.outputs.release}}
+                artifact_version: ${{steps.version.outputs.value}}
 
             - name: Package the application as an image
-              uses: keeonline/gh-actions/actions/docker-build@v0.0.6
+              uses: keeonline/gh-actions/actions/docker-build@v0.0.8
               with:
                 image: chameleon
-                artifact_version: ${{steps.versions.outputs.release}}
+                artifact_version: ${{steps.version.outputs.value}}
 
             - name: Tag repository with the release version
               uses: richardsimko/update-tag@v1.1.6
               with:
-                tag_name: ${{steps.versions.outputs.release}}
+                tag_name: ${{steps.version.outputs.value}}
               env:
                 GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
             - name: Publish the image
-              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.6
+              uses: keeonline/gh-actions/actions/dockerhub-publish@v0.0.8
               with:
                 username: ${{vars.DOCKERHUB_USERNAME}}
                 password: ${{secrets.DOCKERHUB_TOKEN}}
-                source_image: chameleon:${{steps.versions.outputs.release}}
-                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.versions.outputs.release}}
+                source_image: chameleon:${{steps.version.outputs.value}}
+                target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.version.outputs.value}}

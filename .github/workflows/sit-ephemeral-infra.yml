@@ -28,12 +28,12 @@ jobs:
               echo "infra_environment=eph$THIS" >> $GITHUB_OUTPUT
               echo "vpc_cidr=10.$THIS.0.0/16" >> $GITHUB_OUTPUT
               echo "repo_name=keeonline/infra-aws" >> $GITHUB_OUTPUT
-              echo "repo_ref=v0.0.10" >> $GITHUB_OUTPUT
+              echo "repo_ref=v0.0.11" >> $GITHUB_OUTPUT
                
     provision-infra:
         name: Provision
         needs: [ sit-config ]
-        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.10
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.11
         permissions:
             id-token: write
         secrets:
@@ -42,7 +42,6 @@ jobs:
           action: apply
           environment: ${{ needs.sit-config.outputs.infra_environment }}
           vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
-          checkout_repo: true
           repo_name: ${{ needs.sit-config.outputs.repo_name }}
           repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
 
@@ -93,7 +92,7 @@ jobs:
         name: Destroy
         needs: [ sit-config, undeploy-app ]
         if: always()
-        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.10
+        uses: keeonline/infra-aws/.github/workflows/reusable-manage-infra.yml@v0.0.11
         permissions:
             id-token: write
         secrets:
@@ -102,7 +101,5 @@ jobs:
           action: destroy
           environment: ${{ needs.sit-config.outputs.infra_environment }}
           vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
-          checkout_repo: true
           repo_name: ${{ needs.sit-config.outputs.repo_name }}
           repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
-
