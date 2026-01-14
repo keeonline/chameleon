@@ -1,22 +1,14 @@
-name: Run the SITs against ephemeral infrastructure
+name: Pull request
 
 on:
-    workflow_dispatch:
-        inputs:
-            environment:
-                type: environment
-                required: false
-                default: test
+  pull_request:
 
 jobs:
     sit-config:
         name: Get config
         runs-on: ubuntu-24.04
-        environment: ${{inputs.environment}}
         outputs:
-            az_use_count: ${{vars.AZ_USE_COUNT}}
-            base_alb_listener_rule_priority: ${{vars.BASE_ALB_LISTENER_RULE_PRIORITY}}
-            infra_environment: ${{steps.values.outputs.infra_environment}}
+            this_environment: ${{steps.values.outputs.this_environment}}
             vpc_cidr: ${{steps.values.outputs.vpc_cidr}}
             repo_name:  ${{steps.values.outputs.repo_name}}
             repo_ref:  ${{steps.values.outputs.repo_ref}}
@@ -25,7 +17,7 @@ jobs:
             id: values
             run: |
               THIS=$(shuf -i 201-255 -n 1)
-              echo "infra_environment=eph$THIS" >> $GITHUB_OUTPUT
+              echo "this_environment=eph$THIS" >> $GITHUB_OUTPUT
               echo "vpc_cidr=10.$THIS.0.0/16" >> $GITHUB_OUTPUT
               echo "repo_name=keeonline/infra-aws" >> $GITHUB_OUTPUT
               echo "repo_ref=v0.0.11" >> $GITHUB_OUTPUT
@@ -40,7 +32,7 @@ jobs:
             inherit
         with:
           action: apply
-          environment: ${{ needs.sit-config.outputs.infra_environment }}
+          environment: ${{ needs.sit-config.outputs.this_environment }}
           vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
           repo_name: ${{ needs.sit-config.outputs.repo_name }}
           repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
@@ -55,10 +47,9 @@ jobs:
         inherit
       with:
         action: apply
-        app_environment: ${{inputs.environment}}
-        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
-        az_use_count: ${{ needs.sit-config.outputs.az_use_count }}
-        base_alb_listener_rule_priority: ${{ needs.sit-config.outputs.base_alb_listener_rule_priority }}
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
+        repo_ref: ${{github.head_ref}}
 
     execute-sit:
       name: Run the SITs against a deployed application
@@ -69,8 +60,8 @@ jobs:
       secrets:
         inherit
       with:
-        app_environment: ${{inputs.environment}}
-        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
 
     undeploy-app:
       name: Undeploy
@@ -83,10 +74,9 @@ jobs:
         inherit
       with:
         action: destroy
-        app_environment: ${{inputs.environment}}
-        infra_environment: ${{ needs.sit-config.outputs.infra_environment }}
-        az_use_count: ${{ needs.sit-config.outputs.az_use_count }}
-        base_alb_listener_rule_priority: ${{ needs.sit-config.outputs.base_alb_listener_rule_priority }}
+        app_environment: ${{needs.sit-config.outputs.this_environment }}
+        infra_environment: ${{ needs.sit-config.outputs.this_environment }}
+        repo_ref: ${{github.head_ref}}
 
     destroy-infra:
         name: Destroy
@@ -99,7 +89,7 @@ jobs:
             inherit
         with:
           action: destroy
-          environment: ${{ needs.sit-config.outputs.infra_environment }}
+          environment: ${{ needs.sit-config.outputs.this_environment }}
           vpc_cidr: ${{ needs.sit-config.outputs.vpc_cidr }}
           repo_name: ${{ needs.sit-config.outputs.repo_name }}
           repo_ref: ${{ needs.sit-config.outputs.repo_ref }}
