@@ -11,6 +11,8 @@ jobs:
         runs-on: ubuntu-24.04
         permissions:
           contents: write
+        outputs:
+          app_ref: ${{steps.version.outputs.value}}
         steps:
             - name: Get the artifact version
               id: version
@@ -41,3 +43,14 @@ jobs:
                 password: ${{secrets.DOCKERHUB_TOKEN}}
                 source_image: chameleon:${{steps.version.outputs.value}}
                 target_image: ${{vars.DOCKERHUB_USERNAME}}/chameleon:${{steps.version.outputs.value}}
+
+    sits:
+      name: Run SITs
+      needs: [ main-push ]
+      uses: ./.github/workflows/reusable-on-event-sit.yml
+      permissions:
+        id-token: write
+      secrets:
+        inherit
+      with:
+        app_ref: ${{needs.main-push.outputs.app_ref}}
