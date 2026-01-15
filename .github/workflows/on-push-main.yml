@@ -46,11 +46,11 @@ jobs:
 
     sits:
       name: Run SITs
-      needs: [ push-to-main ]
+      needs: [ main-push ]
       uses: ./.github/workflows/reusable-on-event-sit.yml
       permissions:
         id-token: write
       secrets:
         inherit
       with:
-        app_ref: ${{needs.push-to-main.outputs.app_ref}}
+        app_ref: ${{needs.main-push.outputs.app_ref}}
